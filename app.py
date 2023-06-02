@@ -13,9 +13,9 @@ from prompt_engineering import NLP_TASKS, NLP_TASK_PROMPTS, \
 
 # Price for 1000 tokens
 MODEL_PRICES = {
-    "gpt-3.5-turbo": 0.002,
     "text-ada-001": 0.0004,
     "text-babbage-001": 0.0005,
+    "gpt-3.5-turbo": 0.002,
     "text-curie-001 ": 0.002,
     "text-davinci-003": 0.02,
 }
@@ -73,10 +73,12 @@ class PromptHandler():
 
         return response_text
 
-    def get_price(self, model: str) -> float:
-        """Calculate price per 1000 tokens according to the inputs."""
-        cost = MODEL_PRICES.get(model)
-        return cost * (1 + PRICE_MARGIN)
+    def get_price(self, prompt: str, task_type: str, speed: int, quality: int) -> float:
+        """Calculate price per inferences according to the inputs. 1 token is equal to 4 characters."""
+        model_id = int(round((speed + quality)/2, 0)) - 1
+        num_tokens = len(prompt) >> 2
+        price_per_thousand = MODEL_PRICES[list(MODEL_PRICES.keys())[model_id]]
+        return num_tokens * price_per_thousand
 
     def get_saved_amount(self, final_price: float,
                          simplified_promt_ratio: float) -> float:
@@ -119,6 +121,6 @@ class APIs():
 # iface.launch()
 
 
-prompt = 'Hi, are you a human?'
-ph = PromptHandler()
-response = ph.generate(prompt, task='chat', speed=5, quality=4)
+# prompt = 'Hi, are you a human?'
+# ph = PromptHandler()
+# response = ph.generate(prompt, task='chat', speed=5, quality=4)
