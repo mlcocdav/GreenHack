@@ -3,6 +3,7 @@ import os
 import openai
 import pandas as pd
 from gptrim import trim
+from prompt_engineering import NLP_TASKS, NLP_TASK_PROMPTS, NLP_TASK_TEMPERATURES
 
 # Price for 1000 tokens
 MODEL_PRICES = {
@@ -14,8 +15,6 @@ MODEL_PRICES = {
 }
 # % of the price
 PRICE_MARGIN = 0.1
-
-NLP_TASKS = ['summarization', 'classification', 'question-answering', 'generation', 'chat', 'other']
 
 class PromptHandler():
     def __init__(self, ):
