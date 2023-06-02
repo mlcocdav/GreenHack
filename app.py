@@ -17,7 +17,7 @@ def openai(prompt):
         presence_penalty=0.0,
         stop=["\n"]
     )
-    return response
+    return response['choices'][0]['text']
 
 iface = gr.Interface(fn=openai, inputs="text", outputs="text")
 iface.launch()
