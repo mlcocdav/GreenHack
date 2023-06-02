@@ -2,11 +2,25 @@ import gradio as gr
 import os
 import openai
 
-def greet(name):
-    return "Hello " + name + "!!"
+
+class PromptHandler():
+    def __init__(self, ):
+        self.db = None  # table with previous prompts
+        self.model_repository = None  # dict with models?
+
+    def generate(self, prompt: str, task, speed, quality, ):
+        pass
+
+    def select_model(self, ):
+        pass
+
+    def get_price(self, prompt: str, task: str, speed: int,
+                  quality: int) -> float:
+        """Calculate price according to the inputs."""
+
 
 def openai_prompt(prompt):
-    #print(os.getenv("OPENAI_API_KEY"))
+    # print(os.getenv("OPENAI_API_KEY"))
     openai.api_key = os.environ['OPENAI_API']
 
     response = openai.Completion.create(
@@ -21,5 +35,6 @@ def openai_prompt(prompt):
     )
     return response['choices'][0]['text']
 
-iface = gr.Interface(fn=openai_prompt, inputs="text", outputs="text")
+
+iface = gr.Interface(fn=openai_prompt, inputs=["text"], outputs="text")
 iface.launch()
