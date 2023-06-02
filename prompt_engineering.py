@@ -1,7 +1,7 @@
-NLP_TASKS = ['summarization', 'classification', 'question-answering', 'generation', 'chat', 'other']
+NLP_TASKS = [ 'chat', 'summarization', 'classification', 'question-answering', 'generation', 'other']
 
 NLP_TASK_PROMPTS = {
-	"summarization": "summarize the following text",
+	"summarization": "summarize the following text ###",
 	"classification": "Classify the sentiment in the following text",
 	"question-answering": "Answer the question based on the context below. If the question cannot be answered using the information provided answer with 'I don't know'.",
 	"chat": "The below is a conversation with a funny chatbot. The chatbot's responses are amusing and entertaining.",

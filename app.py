@@ -1,126 +1,76 @@
 import gradio as gr
 import os
 import openai
-import pandas as pd
-from numpy import dot
-from numpy.linalg import norm
-import numpy as np
-import ast
 
-from gptrim import trim
-from prompt_engineering import NLP_TASKS, NLP_TASK_PROMPTS, \
-    NLP_TASK_TEMPERATURES
-
-# Price for 1000 tokens
-MODEL_PRICES = {
-    "text-ada-001": 0.0004,
-    "text-babbage-001": 0.0005,
-    "gpt-3.5-turbo": 0.002,
-    "text-curie-001 ": 0.002,
-    "text-davinci-003": 0.02,
-}
-# % of the price
-PRICE_MARGIN = 0.1
-
-# openai.api_key = os.environ['OPENAI_API']
-openai.api_key = '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'
+from backend import PromptHandler
+from prompt_engineering import NLP_TASKS
 
 
-def cos_sim(a, b):
-    return dot(a, b) / (norm(a) * norm(b))
+def dummy_prompt(prompt, task_type, speed, quality):
+    return f"{prompt} {task_type} {speed} {quality}", "text2", "text3", "text4", "text5"
 
 
-class PromptHandler():
-    def __init__(self):
-        self.prompt_history = pd.read_csv('prompt_history.csv')
-
-    def generate(self, prompt: str, task, speed, quality, ):
-        assert task in NLP_TASKS
-
-        apis = APIs()
-        df_subset = self.prompt_history[
-            (self.prompt_history['speed'] == speed) &
-            (self.prompt_history[
-                 'quality'] == quality) &
-            (self.prompt_history['task'] == task) &
-            (self.prompt_history['feedback'])]
-        embedding = apis.get_embedding(prompt)
-        if df_subset.shape[0] > 0:
-            df_subset.loc['prompt_embedding',:] = df_subset[
-                'prompt_embedding'].apply(lambda x: ast.literal_eval(x))
-            df_subset.loc['similarity',:] = df_subset.apply(
-                lambda row: cos_sim(row['prompt_embedding'], embedding),
-                axis=1)
-            best_model = df_subset.sort_values(by=['similarity'])['model'].iloc[0]
-        else:
-            best_model = "text-ada-001"
-        edited_prompt = self.simplify_prompt(
-            f'{NLP_TASK_PROMPTS[task]}{prompt}')
-
-        response_text = apis.openai_prompt(edited_prompt, best_model,
-                                           temperature=NLP_TASK_TEMPERATURES[
-                                               task])
-        print('Response: ', response_text)
-        # save prompt to db
-        new_row = {
-            'prompt': prompt, 'prompt_embedding': embedding,
-            'model': best_model,
-            'result': response_text, 'task': task,
-            'speed': speed, 'quality': quality, 'feedback': True}
-        self.prompt_history = pd.concat(
-            [self.prompt_history, pd.DataFrame([new_row])], ignore_index=True)
-        self.prompt_history.to_csv('prompt_history.csv', index_label='ID')
-
-        return response_text
-
-    def get_price(self, prompt: str, task_type: str, speed: int, quality: int) -> float:
-        """Calculate price per inferences according to the inputs. 1 token is equal to 4 characters."""
-        model_id = int(round((speed + quality)/2, 0)) - 1
-        num_tokens = len(prompt) >> 2
-        price_per_thousand = MODEL_PRICES[list(MODEL_PRICES.keys())[model_id]]
-        return num_tokens * price_per_thousand
-
-    def get_saved_amount(self, final_price: float,
-                         simplified_promt_ratio: float) -> float:
-        chat_gpt_cost = MODEL_PRICES.get("gpt-3.5-turbo")
-        return chat_gpt_cost - final_price * simplified_promt_ratio
-
-    def simplify_prompt(self, promt: str) -> str:
-        return trim(promt)
+def dummy_calculate_price(prompt, task_type, speed, quality):
+    return (len(prompt) + speed + quality) * (NLP_TASKS.index(task_type) + 1)
 
 
-class APIs():
+if __name__ == "__main__":
+    handler = PromptHandler()
+    with gr.Blocks(theme=gr.themes.Default(primary_hue=gr.themes.colors.green,
+                                           secondary_hue=gr.themes.colors.green)) as demo:
+        with gr.Row():
+            with gr.Column():
+                with gr.Row():
+                    gr.Image(value="logo.png", show_label=False,
+                             shape=[150, 30], interactive=False)
+            with gr.Column():
+                pass
+            with gr.Column():
+                pass
+        with gr.Row():
+            with gr.Column():
+                prompt = gr.Textbox(label="Prompt",
+                                    placeholder="Enter your prompt here ...")
+                task_type = gr.Dropdown(
+                    label="Task Type", choices=NLP_TASKS, value=NLP_TASKS[0],
+                    interactive=True, allow_custom_value=False)
+                speed = gr.Radio(list(range(1, 6)), label="Speed", value=3,
+                                 interactive=True)
+                quality = gr.Radio(list(range(1, 6)), label="Quality", value=3,
+                                   interactive=True)
 
-    def get_embedding(self, text, model="text-embedding-ada-002"):
-        text = text.replace("\n", " ")
-        return openai.Embedding.create(input=[text], model=model)['data'][0][
-            'embedding']
+                out = gr.Number(label="Estimated price per 1000 tokens, $")
 
-    def openai_prompt(self, prompt, model, temperature):
-        if model == "gpt-3.5-turbo":
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": prompt}])
-            return response['choices'][0]["message"]['content']
-        else:
-            response = openai.Completion.create(
-                model=model,
-                prompt=prompt,
-                temperature=temperature,
-                max_tokens=100,
-                top_p=1,
-                n=1,
-                frequency_penalty=0.0,
-                presence_penalty=0.0,
-            )
-            return response['choices'][0]['text']
+                prompt.change(handler.get_price,
+                              [prompt, task_type, speed, quality], out)
+                task_type.change(handler.get_price,
+                                 [prompt, task_type, speed, quality], out)
+                speed.change(handler.get_price,
+                             [prompt, task_type, speed, quality], out)
+                quality.change(handler.get_price,
+                               [prompt, task_type, speed, quality], out)
 
+                try_btn = gr.Button("Try model")
+            with gr.Column():
+                model_output = gr.Textbox(label="Model response", lines=6)
+                with gr.Row():
+                    inference_speed = gr.Textbox(label="Inference time, ms")
+                    model_name = gr.Textbox(label="Model Name")
+                    savings = gr.Textbox(label="Savings %*")
 
-# iface = gr.Interface(fn=openai_prompt, inputs=["text"], outputs="text")
-# iface.launch()
+                shortened_prompt = gr.Textbox(label="Simplified Prompt", lines=4)
 
+                try_btn.click(
+                    fn=handler.generate,
+                    inputs=[prompt, task_type, speed, quality],
+                    outputs=[model_output, inference_speed, model_name,
+                             shortened_prompt, savings],
+                    api_name="infer")
+                with gr.Row():
+                    like_btn = gr.Button("Wow, that's cool!",
+                                         variant="primary")
+                    dislike_btn = gr.Button("Nah, I wont it better")
 
-# prompt = 'Hi, are you a human?'
-# ph = PromptHandler()
-# response = ph.generate(prompt, task='chat', speed=5, quality=4)
+        gr.Markdown(
+            "\* \- amount that can be saved if proposed model is used instead of ChatGPT")
+    demo.launch()
