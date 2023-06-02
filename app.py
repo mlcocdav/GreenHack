@@ -7,7 +7,7 @@ def greet(name):
 
 def openai_prompt(prompt):
     #print(os.getenv("OPENAI_API_KEY"))
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API")
 
     response = openai.Completion.create(
         model="text-davinci-003",
