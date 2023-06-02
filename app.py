@@ -1,7 +1,16 @@
 import gradio as gr
 import os
+import nltk
 import openai
 
+# Price for 1000 tokens"
+MODEL_PRICES = {
+    "gpt-3.5-turbo": 0.002,
+    "text-ada-001": 0.0004,
+    "text-babbage-001": 0.00005,
+    "text-curie-001 ": 0.002,
+    "text-davinci-003": 0.02,
+}
 
 class PromptHandler():
     def __init__(self, ):
@@ -14,9 +23,10 @@ class PromptHandler():
     def select_model(self, ):
         pass
 
-    def get_price(self, prompt: str, task: str, speed: int,
-                  quality: int) -> float:
+    def get_price(self, prompt: str, model: str) -> float:
         """Calculate price according to the inputs."""
+        tokens_num = len(nltk.word_tokenize(prompt))
+        return MODEL_PRICES.get(model) * tokens_num / 10000
 
 
 def openai_prompt(prompt):
