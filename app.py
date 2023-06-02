@@ -2,11 +2,13 @@ import gradio as gr
 import os
 import openai
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 def greet(name):
     return "Hello " + name + "!!"
 
-def openai(prompt):
+def openai_prompt(prompt):
+    #print(os.getenv("OPENAI_API_KEY"))
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=prompt,
@@ -19,5 +21,5 @@ def openai(prompt):
     )
     return response['choices'][0]['text']
 
-iface = gr.Interface(fn=openai, inputs="text", outputs="text")
+iface = gr.Interface(fn=openai_prompt, inputs="text", outputs="text")
 iface.launch()
