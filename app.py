@@ -39,30 +39,28 @@ if __name__ == "__main__":
                 quality = gr.Radio(list(range(1, 6)), label="Quality", value=3,
                                    interactive=True)
 
-                out = gr.Number(label="Estimated price per 1000 tokens, $")
+                with gr.Row():
+                    simplified = gr.Checkbox(value=True, label="Simplified Prompt", info="Simplify prompt?", interactive=True)
+                    out = gr.Number(label="Price per 1000 inferences, $")
 
-                prompt.change(handler.get_price,
-                              [prompt, task_type, speed, quality], out)
-                task_type.change(handler.get_price,
-                                 [prompt, task_type, speed, quality], out)
-                speed.change(handler.get_price,
-                             [prompt, task_type, speed, quality], out)
-                quality.change(handler.get_price,
-                               [prompt, task_type, speed, quality], out)
+                prompt.change(handler.get_price, [prompt, task_type, speed, quality], out)
+                task_type.change(handler.get_price, [prompt, task_type, speed, quality], out)
+                speed.change(handler.get_price, [prompt, task_type, speed, quality], out)
+                quality.change(handler.get_price, [prompt, task_type, speed, quality], out)
 
                 try_btn = gr.Button("Try model")
             with gr.Column():
                 model_output = gr.Textbox(label="Model response", lines=6)
                 with gr.Row():
-                    inference_speed = gr.Textbox(label="Inference time, ms")
+                    savings = gr.Textbox(label="*Savings, $")
                     model_name = gr.Textbox(label="Model Name")
-                    savings = gr.Textbox(label="Savings %*")
+                    inference_speed = gr.Textbox(label="Inference time, ms")
 
-                shortened_prompt = gr.Textbox(label="Simplified Prompt", lines=4)
-
+                shortened_prompt = gr.Textbox(label="Improved Prompt", lines=5)
+                    
                 try_btn.click(
                     fn=handler.generate,
-                    inputs=[prompt, task_type, speed, quality],
+                    inputs=[prompt, task_type, speed, quality, simplified],
                     outputs=[model_output, inference_speed, model_name,
                              shortened_prompt, savings],
                     api_name="infer")
