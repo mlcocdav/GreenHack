@@ -9,6 +9,7 @@ from numpy import dot
 from numpy.linalg import norm
 import numpy as np
 import ast
+import nltk
 
 from gptrim import trim
 from prompt_engineering import NLP_TASKS, NLP_TASK_PROMPTS, NLP_TASK_TEMPERATURES
@@ -18,13 +19,14 @@ MODEL_PRICES = {
     "text-ada-001": 0.0004,
     "text-babbage-001": 0.0005,
     "gpt-3.5-turbo": 0.002,
-    "text-curie-001 ": 0.002,
+    "text-curie-001": 0.002,
     "text-davinci-003": 0.02,
 }
 # % of the price
 PRICE_MARGIN = 0.1
 
-openai.api_key = os.environ['OPENAI_API']
+#openai.api_key = os.environ['OPENAI_API']
+openai.api_key =  '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' #os.getenv("OPENAI_API_KEY")
 
 def cos_sim(a, b):
     return dot(a, b) / (norm(a) * norm(b))
@@ -76,21 +78,27 @@ class PromptHandler():
         self.prompt_history = pd.concat(
             [self.prompt_history, pd.DataFrame([new_row])], ignore_index=True)
         self.prompt_history.to_csv('prompt_history.csv', index_label='ID')
-        price = self.get_price(prompt, task, speed, quality)
-        saved_money = self.get_saved_amount(price, len(edited_prompt)/len(simplified_prompt))
+        price = self.get_price(prompt, task, speed, quality, model_name=best_model)
+        print(nltk.word_tokenize(prompt))
+        print(nltk.word_tokenize(simplified_prompt))
+        saved_money = round(self.get_saved_amount(price, len(nltk.word_tokenize(simplified_prompt))/len(nltk.word_tokenize(prompt))),2)
 
         return response_text, inference_time, best_model, simplified_prompt, saved_money
 
-    def get_price(self, prompt: str, task_type: str, speed: int, quality: int) -> float:
+    def get_price(self, prompt: str, task_type: str, speed: int, quality: int, model_name=None) -> float:
         """Calculate price per inferences according to the inputs. 1 token is equal to 4 characters."""
-        model_id = int(round((speed + quality)/2, 0)) - 1
-        price_per_thousand = MODEL_PRICES[list(MODEL_PRICES.keys())[model_id]]
+        if model_name is None:
+            model_id = int(round((speed + quality)/2, 0)) - 1
+            price_per_thousand = MODEL_PRICES[
+                list(MODEL_PRICES.keys())[model_id]]
+        else:
+            price_per_thousand = MODEL_PRICES[model_name]
         return round(price_per_thousand * (1 + PRICE_MARGIN), 6)
 
     def get_saved_amount(self, final_price: float,
                          simplified_promt_ratio: float) -> float:
         chat_gpt_cost = MODEL_PRICES.get("gpt-3.5-turbo")
-        return 100 * (1 - (final_price * simplified_promt_ratio)/ chat_gpt_cost)
+        return 100 * (1 - (final_price * simplified_promt_ratio) / chat_gpt_cost)
 
     def simplify_prompt(self, promt: str) -> str:
         return trim(promt)
