@@ -19,5 +19,5 @@ def openai(prompt):
     )
     return response
 
-iface = gr.Interface(fn=greet, inputs="text", outputs="text")
+iface = gr.Interface(fn=openai, inputs="text", outputs="text")
 iface.launch()
