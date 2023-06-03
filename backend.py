@@ -22,7 +22,7 @@ MODEL_PRICES = {
 # % of the price
 PRICE_MARGIN = 0.0
 
-openai.api_key = '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' # os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def cos_sim(a, b):
