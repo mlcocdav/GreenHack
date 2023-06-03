@@ -1,19 +1,19 @@
-NLP_TASKS = [ 'chat', 'summarization', 'classification', 'question-answering', 'generation', 'other']
+NLP_TASKS = ['Chat', 'Summarization', 'Classification', 'Question-answering', 'Generation', 'Other']
 
 NLP_TASK_PROMPTS = {
-	"summarization": "summarize the following text ###",
-	"classification": "Classify the sentiment in the following text",
-	"question-answering": "Answer the question based on the context below. If the question cannot be answered using the information provided answer with 'I don't know'.",
-	"chat": "The below is a conversation with a funny chatbot. The chatbot's responses are amusing and entertaining.",
-	"generation": "Create a text using the following instructions",
-	"other":  "Answer the question based on the context below. If the question cannot be answered using the information provided answer with 'I don't know'.",
+	"Summarization": "summarize the following text ###",
+	"Classification": "Classify the sentiment in the following text",
+	"Question-answering": "Answer the question based on the context below. If the question cannot be answered using the information provided answer with 'I don't know'.",
+	"Chat": "The below is a conversation with a funny chatbot. The chatbot's responses are amusing and entertaining.",
+	"Generation": "Create a text using the following instructions",
+	"Other":  "Answer the question based on the context below. If the question cannot be answered using the information provided answer with 'I don't know'.",
 }
 
 NLP_TASK_TEMPERATURES = {
-	"summarization": 0.0,
-	"chat": 1.0,
-	"classification": 0.0,
-	"question-answering": 0.5,
-	"generation": 1.0,
-	"other": 0.0
+	"Summarization": 0.0,
+	"Chat": 0.2,
+	"Classification": 0.0,
+	"Question-answering": 0.2,
+	"Generation": 1.0,
+	"Other": 0.0
 }

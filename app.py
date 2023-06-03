@@ -32,7 +32,7 @@ if __name__ == "__main__":
                 prompt = gr.Textbox(label="Prompt",
                                     placeholder="Enter your prompt here ...")
                 task_type = gr.Dropdown(
-                    label="Task Type", choices=NLP_TASKS, value=NLP_TASKS[0],
+                    label="Task type", choices=NLP_TASKS, value=NLP_TASKS[0],
                     interactive=True, allow_custom_value=False)
                 speed = gr.Radio(list(range(1, 6)), label="Speed", value=3,
                                  interactive=True)
@@ -40,23 +40,23 @@ if __name__ == "__main__":
                                    interactive=True)
 
                 with gr.Row():
-                    simplified = gr.Checkbox(value=True, label="Simplified Prompt", info="Simplify prompt?", interactive=True)
-                    out = gr.Number(label="Price per 1000 inferences, $")
+                    simplified = gr.Checkbox(value=True, label="Simplify prompt", info="Simplify prompt", interactive=True)
+                    out = gr.Textbox(label="Price per 1000 tokens - other providers*")
 
-                prompt.change(handler.get_price, [prompt, task_type, speed, quality], out)
-                task_type.change(handler.get_price, [prompt, task_type, speed, quality], out)
-                speed.change(handler.get_price, [prompt, task_type, speed, quality], out)
-                quality.change(handler.get_price, [prompt, task_type, speed, quality], out)
+                prompt.change(handler.get_price_dollars, [prompt, task_type, speed, quality], out)
+                task_type.change(handler.get_price_dollars, [prompt, task_type, speed, quality], out)
+                speed.change(handler.get_price_dollars, [prompt, task_type, speed, quality], out)
+                quality.change(handler.get_price_dollars, [prompt, task_type, speed, quality], out)
 
                 try_btn = gr.Button("Try model")
             with gr.Column():
                 model_output = gr.Textbox(label="Model response", lines=6)
                 with gr.Row():
-                    savings = gr.Textbox(label="*Savings, $")
-                    model_name = gr.Textbox(label="Model Name")
-                    inference_speed = gr.Textbox(label="Inference time, ms")
+                    savings = gr.Textbox(label="SimpleGen price")
+                    model_name = gr.Textbox(label="Selected model")
+                    inference_speed = gr.Textbox(label="Inference time (ms)")
 
-                shortened_prompt = gr.Textbox(label="Improved Prompt", lines=5)
+                shortened_prompt = gr.Textbox(label="Simplified Prompt", lines=5)
                     
                 try_btn.click(
                     fn=handler.generate,
@@ -67,8 +67,8 @@ if __name__ == "__main__":
                 with gr.Row():
                     like_btn = gr.Button("Wow, that's cool!",
                                          variant="primary")
-                    dislike_btn = gr.Button("Nah, I wont it better")
+                    dislike_btn = gr.Button("Nah, I want it better.")
 
         gr.Markdown(
-            "\* \- amount that can be saved if proposed model is used instead of ChatGPT")
+            "\*  official price from other providers for the model with similar quality and speed")
     demo.launch()
