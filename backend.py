@@ -93,7 +93,7 @@ class PromptHandler():
         savings_percent = round(
             self.get_saved_amount(price, competitor_price,
                                   simplified_prompt_ratio), 2)
-        saved_money = f'${price * simplified_prompt_ratio} saved {savings_percent} % '
+        saved_money = f'${round(price * simplified_prompt_ratio, 6)} saved {savings_percent} % '
         return response_text, inference_time, best_model, simplified_prompt, saved_money
 
     def get_price(self, prompt: str, task_type: str, speed: int, quality: int,
@@ -110,7 +110,11 @@ class PromptHandler():
     def get_price_dollars(self, prompt: str, task_type: str, speed: int,
                           quality: int,
                           model_name=None) -> float:
-        return f'${self.get_price(prompt, task_type, speed, quality, model_name)}'
+        """Calculate price per inferences according to the inputs."""
+        if model_name is None:
+            model_id = int(round((speed + quality) / 2, 0)) - 1
+            model_name = list(MODEL_PRICES.keys())[model_id]
+        return f'${self.get_price(prompt, task_type, speed, quality, model_name)} ({model_name})'
 
     def get_saved_amount(self, final_price: float, other_price: float,
                          simplified_promt_ratio: float) -> float:
