@@ -22,7 +22,7 @@ MODEL_PRICES = {
 # % of the price
 PRICE_MARGIN = 0.0
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = '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' # os.getenv("OPENAI_API_KEY")
 
 
 def cos_sim(a, b):
@@ -61,9 +61,12 @@ class PromptHandler():
             simplified_prompt = self.simplify_prompt(prompt)
             edited_prompt = self.simplify_prompt(
                 f'{NLP_TASK_PROMPTS[task]}{simplified_prompt}')
-            simplified_prompt_ratio = len(
+            try:
+                simplified_prompt_ratio = len(
                 nltk.word_tokenize(simplified_prompt)) / len(
                 nltk.word_tokenize(prompt))
+            except:
+                simplified_prompt_ratio = 1
         else:
             edited_prompt = f'{NLP_TASK_PROMPTS[task]}{prompt}'
             simplified_prompt_ratio = 1
@@ -127,6 +130,8 @@ class APIs():
 
     def get_embedding(self, text, model="text-embedding-ada-002"):
         text = text.replace("\n", " ")
+        if text == '':
+            text = ' '
         return openai.Embedding.create(input=[text], model=model)['data'][0][
             'embedding']
 
