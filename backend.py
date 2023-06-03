@@ -87,8 +87,8 @@ class PromptHandler():
         self.prompt_history = pd.concat(
             [self.prompt_history, pd.DataFrame([new_row])], ignore_index=True)
         self.prompt_history.to_csv('prompt_history.csv', index_label='ID')
-        price = self.get_price(prompt, task, speed, quality,
-                               model_name=best_model)
+        price = round(self.get_price(prompt, task, speed, quality,
+                               model_name=best_model), 6)
         competitor_price = self.get_price(prompt, task, speed, quality)
         savings_percent = round(
             self.get_saved_amount(price, competitor_price,
