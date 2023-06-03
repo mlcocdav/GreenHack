@@ -7,7 +7,7 @@ import pandas as pd
 from gptrim import trim
 from numpy import dot
 from numpy.linalg import norm
-
+import os
 from prompt_engineering import (NLP_TASKS, NLP_TASK_PROMPTS,
                                 NLP_TASK_TEMPERATURES)
 
@@ -22,8 +22,7 @@ MODEL_PRICES = {
 # % of the price
 PRICE_MARGIN = 0.0
 
-# openai.api_key = os.environ['OPENAI_API']
-openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def cos_sim(a, b):
